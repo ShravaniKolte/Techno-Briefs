@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PROSPECTIVEAI — See What Your Team Can't</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy: #080d24;
+  --navy2: #0d1535;
+  --navy3: #131d45;
+  --blue: #3d5afe;
+  --blue2: #5c76ff;
+  --gold: #ffd700;
+  --gold2: #ffec6e;
+  --cyan: #00c9ff;
+  --white: #f0f4ff;
+  --muted: #6b7db3;
+  --danger: #ff4d6d;
+  --success: #00e5a0;
+  --warn: #ffaa00;
+  --card: rgba(13,21,53,0.85);
+  --border: rgba(61,90,254,0.18);
+  --r: 14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+h1,h2,h3{font-family:'Playfair Display',serif;}
+code,pre{font-family:'JetBrains Mono',monospace;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--navy2);}
+::-webkit-scrollbar-thumb{background:var(--blue);border-radius:3px;}
+
+/* ── BACKGROUND ── */
+.bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.bg-mesh::before{content:'';position:absolute;top:-30%;left:-20%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(61,90,254,0.18) 0%,transparent 70%);animation:float1 8s ease-in-out infinite;}
+.bg-mesh::after{content:'';position:absolute;bottom:-20%;right:-10%;width:50%;height:50%;background:radial-gradient(ellipse,rgba(255,215,0,0.08) 0%,transparent 70%);animation:float2 10s ease-in-out infinite;}
+@keyframes float1{0%,100%{transform:translate(0,0);}50%{transform:translate(30px,-30px);}}
+@keyframes float2{0%,100%{transform:translate(0,0);}50%{transform:translate(-20px,20px);}}
+
+/* ── LAYOUT ── */
+.app{position:relative;z-index:1;}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2.5rem;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(8,13,36,0.7);position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:.7rem;cursor:pointer;}
+.logo-icon{width:36px;height:36px;}
+.logo-text{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;letter-spacing:.06em;color:var(--white);}
+.logo-ai{color:var(--gold);font-size:.8rem;font-family:'JetBrains Mono',monospace;font-weight:600;background:rgba(255,215,0,0.12);padding:2px 7px;border-radius:4px;border:1px solid rgba(255,215,0,0.3);}
+.nav-links{display:flex;gap:1.8rem;align-items:center;}
+.nav-link{color:var(--muted);font-size:.9rem;cursor:pointer;transition:color .2s;font-weight:500;}
+.nav-link:hover,.nav-link.active{color:var(--white);}
+.nav-btn{background:var(--blue);color:#fff;border:none;padding:.55rem 1.4rem;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.nav-btn:hover{background:var(--blue2);transform:translateY(-1px);}
+
+/* ── PAGES ── */
+.page{display:none;min-height:100vh;}
+.page.active{display:block;}
+
+/* ── LANDING ── */
+.hero{text-align:center;padding:7rem 2rem 4rem;max-width:860px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(61,90,254,0.12);border:1px solid rgba(61,90,254,0.3);padding:.4rem 1rem;border-radius:99px;font-size:.8rem;color:var(--blue2);margin-bottom:2rem;font-weight:500;}
+.hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--cyan);display:inline-block;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{font-size:clamp(2.8rem,6vw,5rem);line-height:1.08;margin-bottom:1.5rem;background:linear-gradient(135deg,var(--white) 40%,var(--blue2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero h1 span{-webkit-text-fill-color:var(--gold);}
+.hero p{font-size:1.18rem;color:var(--muted);max-width:580px;margin:0 auto 2.5rem;line-height:1.7;}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:var(--blue);color:#fff;border:none;padding:.85rem 2.2rem;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:.5rem;}
+.btn-primary:hover{background:var(--blue2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(61,90,254,0.4);}
+.btn-secondary{background:transparent;color:var(--white);border:1px solid var(--border);padding:.85rem 2.2rem;border-radius:10px;font-size:1rem;font-weight:500;cursor:pointer;transition:all .25s;}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue2);}
+
+/* Prism SVG logo hero */
+.hero-logo{margin:0 auto 3rem;width:120px;height:120px;display:block;}
+
+/* Stats row */
+.stats{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;padding:2rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:2rem 0;}
+.stat{text-align:center;}
+.stat-num{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:var(--gold);}
+.stat-label{font-size:.82rem;color:var(--muted);margin-top:.2rem;}
+
+/* Features grid */
+.features{padding:4rem 2rem;max-width:1100px;margin:0 auto;}
+.features h2{text-align:center;font-size:2.2rem;margin-bottom:.8rem;}
+.features-sub{text-align:center;color:var(--muted);margin-bottom:3rem;}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;}
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.8rem;transition:all .25s;backdrop-filter:blur(10px);}
+.feature-card:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:0 12px 40px rgba(61,90,254,0.15);}
+.feature-icon{font-size:2rem;margin-bottom:1rem;}
+.feature-card h3{font-size:1.1rem;margin-bottom:.6rem;font-family:'DM Sans',sans-serif;font-weight:600;}
+.feature-card p{font-size:.88rem;color:var(--muted);line-height:1.6;}
+
+/* ── ANALYSE PAGE ── */
+.analyse-wrap{max-width:1000px;margin:0 auto;padding:3rem 2rem;}
+.analyse-wrap h2{font-size:2rem;margin-bottom:.5rem;}
+.analyse-wrap > p{color:var(--muted);margin-bottom:2rem;}
+
+/* Input tabs */
+.input-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;background:var(--navy2);padding:.4rem;border-radius:10px;width:fit-content;}
+.input-tab{padding:.5rem 1.2rem;border-radius:7px;font-size:.88rem;font-weight:500;cursor:pointer;color:var(--muted);border:none;background:transparent;transition:all .2s;}
+.input-tab.active{background:var(--blue);color:#fff;}
+
+/* Audio recorder */
+.recorder{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:2rem;text-align:center;margin-bottom:1.5rem;}
+.rec-btn{width:80px;height:80px;border-radius:50%;border:3px solid var(--danger);background:rgba(255,77,109,0.1);color:var(--danger);font-size:2rem;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;}
+.rec-btn.recording{background:var(--danger);color:#fff;animation:recpulse 1s infinite;}
+@keyframes recpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,77,109,0.5);}50%{box-shadow:0 0 0 15px rgba(255,77,109,0);}}
+.rec-status{font-size:.9rem;color:var(--muted);}
+.rec-timer{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--danger);margin:.5rem 0;}
+
+/* Video recorder */
+.video-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:1.5rem;}
+.video-preview{width:100%;max-width:480px;border-radius:10px;background:#000;margin:0 auto 1rem;display:block;min-height:200px;}
+.video-controls{display:flex;gap:1rem;justify-content:center;}
+.vid-btn{padding:.6rem 1.4rem;border-radius:8px;border:none;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.vid-btn.start{background:var(--blue);color:#fff;}
+.vid-btn.stop{background:var(--danger);color:#fff;}
+.vid-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* Transcript textarea */
+.transcript-area{width:100%;min-height:200px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem;color:var(--white);font-size:.95rem;resize:vertical;outline:none;font-family:'DM Sans',sans-serif;line-height:1.6;transition:border .2s;}
+.transcript-area:focus{border-color:var(--blue);}
+
+/* Team + mood */
+.meta-row{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.5rem 0;}
+.meta-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;}
+.meta-box h4{font-size:.9rem;font-weight:600;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.member-input{display:flex;gap:.7rem;margin-bottom:.8rem;}
+.member-input input{flex:1;background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:.55rem 1rem;color:var(--white);font-size:.9rem;outline:none;}
+.member-input input:focus{border-color:var(--blue);}
+.add-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:.55rem 1rem;cursor:pointer;font-size:.85rem;font-weight:600;}
+.members-list{display:flex;flex-wrap:wrap;gap:.5rem;}
+.member-tag{background:rgba(61,90,254,0.15);border:1px solid rgba(61,90,254,0.3);border-radius:99px;padding:.3rem .9rem;font-size:.82rem;color:var(--blue2);display:flex;align-items:center;gap:.4rem;}
+.member-tag button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;line-height:1;}
+.mood-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;}
+.mood-btn{background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:.6rem;font-size:1.4rem;cursor:pointer;transition:all .2s;text-align:center;}
+.mood-btn.selected,.mood-btn:hover{background:rgba(61,90,254,0.2);border-color:var(--blue);}
+.mood-label{font-size:.65rem;color:var(--muted);margin-top:.2rem;}
+
+/* Analyse button */
+.analyse-btn{width:100%;padding:1.1rem;background:linear-gradient(135deg,var(--blue),var(--blue2));border:none;border-radius:var(--r);color:#fff;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:.03em;margin-top:1.5rem;}
+.analyse-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 35px rgba(61,90,254,0.4);}
+.analyse-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ── RESULTS ── */
+.results{margin-top:2.5rem;display:none;}
+.results.show{display:block;}
+
+/* Echo score */
+.echo-score-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:2rem;margin-bottom:1.5rem;text-align:center;}
+.echo-score-card h3{font-size:1rem;color:var(--muted);margin-bottom:1.5rem;text-transform:uppercase;letter-spacing:.1em;}
+.score-ring{position:relative;width:160px;height:160px;margin:0 auto 1.5rem;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;}
+.score-label-badge{display:inline-block;padding:.3rem 1rem;border-radius:99px;font-size:.8rem;font-weight:600;margin-top:.5rem;}
+.score-low{background:rgba(0,229,160,0.15);color:var(--success);border:1px solid rgba(0,229,160,0.3);}
+.score-moderate{background:rgba(255,170,0,0.15);color:var(--warn);border:1px solid rgba(255,170,0,0.3);}
+.score-high{background:rgba(255,77,109,0.15);color:var(--danger);border:1px solid rgba(255,77,109,0.3);}
+.score-critical{background:rgba(255,77,109,0.3);color:var(--danger);border:1px solid var(--danger);}
+
+/* Result sections */
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;}
+.result-card h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:1.2rem;display:flex;align-items:center;gap:.5rem;}
+.result-item{background:var(--navy2);border-radius:8px;padding:.9rem 1rem;margin-bottom:.7rem;font-size:.88rem;line-height:1.5;border-left:3px solid var(--blue);}
+.result-item.danger{border-left-color:var(--danger);}
+.result-item.gold{border-left-color:var(--gold);}
+.result-item.success{border-left-color:var(--success);}
+.result-item strong{display:block;font-weight:600;margin-bottom:.3rem;}
+.result-item span{color:var(--muted);font-size:.82rem;}
+
+/* Dominance bar */
+.dom-bar-wrap{margin-bottom:.8rem;}
+.dom-bar-header{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:.4rem;}
+.dom-bar{height:8px;background:var(--navy);border-radius:4px;overflow:hidden;}
+.dom-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width 1s ease;}
+.dom-role{font-size:.72rem;padding:.15rem .5rem;border-radius:4px;font-weight:600;}
+.dom-role.Dominant{background:rgba(255,77,109,0.2);color:var(--danger);}
+.dom-role.Active{background:rgba(61,90,254,0.2);color:var(--blue2);}
+.dom-role.Passive{background:rgba(255,170,0,0.2);color:var(--warn);}
+.dom-role.Silent{background:rgba(107,125,179,0.2);color:var(--muted);}
+
+/* Action items */
+.action-item{display:flex;gap:1rem;align-items:flex-start;background:var(--navy2);border-radius:8px;padding:.9rem 1rem;margin-bottom:.7rem;}
+.action-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--blue);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.action-check.done{background:var(--blue);border-color:var(--blue);}
+.action-text{font-size:.88rem;line-height:1.5;}
+.action-meta{font-size:.75rem;color:var(--muted);margin-top:.25rem;}
+
+/* What-if & Perspective tools */
+.tools-row{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+.tool-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;}
+.tool-card h4{font-size:.9rem;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+.tool-input{display:flex;gap:.7rem;}
+.tool-input input{flex:1;background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:.55rem 1rem;color:var(--white);font-size:.88rem;outline:none;}
+.tool-input input:focus{border-color:var(--blue);}
+.tool-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:.55rem 1rem;cursor:pointer;font-size:.85rem;font-weight:600;white-space:nowrap;}
+.tool-results{margin-top:1rem;}
+.tool-item{background:var(--navy2);border-radius:8px;padding:.8rem 1rem;margin-bottom:.6rem;font-size:.85rem;line-height:1.5;border-left:3px solid var(--gold);}
+
+/* ── DASHBOARD ── */
+.dashboard-wrap{max-width:1100px;margin:0 auto;padding:3rem 2rem;}
+.dash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem;}
+.dash-header h2{font-size:2rem;}
+.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-bottom:2rem;}
+.dash-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;}
+.dash-stat-icon{font-size:1.8rem;margin-bottom:.8rem;}
+.dash-stat-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--white);}
+.dash-stat-label{font-size:.82rem;color:var(--muted);margin-top:.3rem;}
+.dash-stat-trend{font-size:.78rem;margin-top:.4rem;}
+.trend-up{color:var(--success);}
+.trend-down{color:var(--danger);}
+
+/* History list */
+.history-list{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.history-header{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+.history-item{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1.2rem;cursor:pointer;transition:background .2s;}
+.history-item:hover{background:rgba(61,90,254,0.06);}
+.history-item:last-child{border-bottom:none;}
+.history-score{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0;}
+.history-info{flex:1;}
+.history-title{font-weight:500;font-size:.95rem;}
+.history-date{font-size:.78rem;color:var(--muted);margin-top:.2rem;}
+.history-badge{font-size:.75rem;padding:.2rem .7rem;border-radius:99px;}
+
+/* ── LOADING ── */
+.loading-overlay{position:fixed;inset:0;background:rgba(8,13,36,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(10px);}
+.loading-prism{animation:spin 3s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.loading-text{font-family:'Playfair Display',serif;font-size:1.4rem;margin-top:1.5rem;color:var(--white);}
+.loading-sub{color:var(--muted);font-size:.9rem;margin-top:.5rem;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;font-size:.9rem;z-index:1000;transform:translateY(100px);opacity:0;transition:all .3s;max-width:320px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:var(--success);color:var(--success);}
+.toast.error{border-color:var(--danger);color:var(--danger);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .results-grid,.tools-row,.meta-row{grid-template-columns:1fr;}
+  .dash-stats{grid-template-columns:repeat(2,1fr);}
+  .nav-links{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="app">
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo" onclick="showPage('landing')">
+    <svg class="logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="18,3 5,28 31,28" fill="none" stroke="#3d5afe" stroke-width="1.8"/>
+      <line x1="5" y1="28" x2="1" y2="33" stroke="#3d5afe" stroke-width="1.5"/>
+      <line x1="9" y1="28" x2="6" y2="33" stroke="#7b8fff" stroke-width="1.2"/>
+      <line x1="14" y1="28" x2="12" y2="33" stroke="#ffd700" stroke-width="1.5"/>
+      <line x1="18" y1="28" x2="18" y2="34" stroke="#ffd700" stroke-width="1.8"/>
+      <line x1="22" y1="28" x2="24" y2="33" stroke="#00c9ff" stroke-width="1.5"/>
+      <line x1="27" y1="28" x2="30" y2="33" stroke="#00c9ff" stroke-width="1.2"/>
+      <line x1="31" y1="28" x2="35" y2="33" stroke="#4fc3f7" stroke-width="1.5"/>
+    </svg>
+    <span class="logo-text">PROSPECTIVE</span>
+    <span class="logo-ai">AI</span>
+  </div>
+  <div class="nav-links">
+    <span class="nav-link" onclick="showPage('landing')">Home</span>
+    <span class="nav-link" onclick="showPage('dashboard')">Dashboard</span>
+    <span class="nav-link" onclick="showPage('analyse')">Analyse</span>
+  </div>
+  <button class="nav-btn" onclick="showPage('analyse')">▶ Start Analysing</button>
+</nav>
+
+<!-- ══════════ LANDING PAGE ══════════ -->
+<div class="page active" id="page-landing">
+  <div class="hero">
+    <svg class="hero-logo" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="60,8 15,95 105,95" fill="none" stroke="#3d5afe" stroke-width="2"/>
+      <line x1="15" y1="95" x2="2" y2="112" stroke="#3d5afe" stroke-width="2"/>
+      <line x1="28" y1="95" x2="18" y2="112" stroke="#7b8fff" stroke-width="1.5"/>
+      <line x1="42" y1="95" x2="36" y2="112" stroke="#ffd700" stroke-width="2"/>
+      <line x1="60" y1="95" x2="60" y2="114" stroke="#ffd700" stroke-width="2.5"/>
+      <line x1="78" y1="95" x2="84" y2="112" stroke="#00c9ff" stroke-width="2"/>
+      <line x1="92" y1="95" x2="102" y2="112" stroke="#00c9ff" stroke-width="1.5"/>
+      <line x1="105" y1="95" x2="118" y2="112" stroke="#4fc3f7" stroke-width="2"/>
+      <circle cx="60" cy="52" r="5" fill="#ffd700" opacity=".6"/>
+    </svg>
+
+    <div class="hero-badge"><span></span> AI-Powered Team Intelligence</div>
+    <h1>See What Your<br/><span>Team Can't</span></h1>
+    <p>PROSPECTIVEAI detects groupthink, exposes blind spots, and surfaces the questions your team forgot to ask — before bad decisions stick.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="showPage('analyse')">🔍 Analyse a Meeting</button>
+      <button class="btn-secondary" onclick="showPage('dashboard')">📊 View Dashboard</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">87%</div><div class="stat-label">of bad decisions come from unchallenged ideas</div></div>
+    <div class="stat"><div class="stat-num">3x</div><div class="stat-label">better outcomes with diverse thinking</div></div>
+    <div class="stat"><div class="stat-num">60%</div><div class="stat-label">of meetings have dominant speakers</div></div>
+  </div>
+
+  <div class="features">
+    <h2>Everything Your Team Needs</h2>
+    <p class="features-sub">From audio input to actionable insights in seconds</p>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon">🔴</div><h3>Echo Score</h3><p>Real-time 0–100 groupthink meter that tells you exactly how much of an echo chamber your meeting was.</p></div>
+      <div class="feature-card"><div class="feature-icon">🎙️</div><h3>Audio & Video Input</h3><p>Record live meetings or upload audio/video files. AI transcribes and analyses everything automatically.</p></div>
+      <div class="feature-card"><div class="feature-icon">💬</div><h3>Devil's Advocate AI</h3><p>AI automatically argues the other side of every unchallenged idea so your team actually stress-tests decisions.</p></div>
+      <div class="feature-card"><div class="feature-icon">⚠️</div><h3>Blind Spot Alerts</h3><p>Surfaces the topics everyone avoided, the questions nobody asked, and the risks nobody mentioned.</p></div>
+      <div class="feature-card"><div class="feature-icon">📊</div><h3>Dominance Map</h3><p>Visual breakdown of who talked how much — so you know whose voice is missing from the room.</p></div>
+      <div class="feature-card"><div class="feature-icon">😊</div><h3>Mood Check-in</h3><p>Pre-meeting emotional check-in that factors team sentiment into the analysis for richer insights.</p></div>
+      <div class="feature-card"><div class="feature-icon">🧪</div><h3>What-If Generator</h3><p>AI generates powerful "what if" questions that flip assumptions and unlock new thinking angles.</p></div>
+      <div class="feature-card"><div class="feature-icon">🃏</div><h3>Perspective Cards</h3><p>Get different stakeholder viewpoints instantly — see your decision through your customer's, competitor's, and investor's eyes.</p></div>
+      <div class="feature-card"><div class="feature-icon">📄</div><h3>Reports & Export</h3><p>Auto-generated action items, decision audit trail, and PDF reports ready to share with your team.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ANALYSE PAGE ══════════ -->
+<div class="page" id="page-analyse">
+  <div class="analyse-wrap">
+    <h2>Analyse Your Meeting</h2>
+    <p>Paste a transcript, record audio, or use your camera to get instant insights.</p>
+
+    <!-- Input type tabs -->
+    <div class="input-tabs">
+      <button class="input-tab active" onclick="switchTab('text')">📋 Paste Text</button>
+      <button class="input-tab" onclick="switchTab('audio')">🎙️ Record Audio</button>
+      <button class="input-tab" onclick="switchTab('video')">🎥 Record Video</button>
+    </div>
+
+    <!-- Text input -->
+    <div id="tab-text">
+      <textarea class="transcript-area" id="transcriptText" placeholder="Paste your meeting transcript here...&#10;&#10;Example:&#10;John: I think we should go with Option A.&#10;Sarah: Yes, Option A makes sense.&#10;Mike: Agreed, Option A it is.&#10;John: Great, Option A then!"></textarea>
+    </div>
+
+    <!-- Audio recorder -->
+    <div id="tab-audio" style="display:none;">
+      <div class="recorder">
+        <button class="rec-btn" id="audioRecBtn" onclick="toggleAudioRec()">🎙️</button>
+        <div class="rec-timer" id="audioTimer">00:00</div>
+        <div class="rec-status" id="audioStatus">Click to start recording your meeting</div>
+        <div style="margin-top:1rem;color:var(--muted);font-size:.82rem;">Transcription appears in the text box below as you speak</div>
+      </div>
+      <textarea class="transcript-area" id="audioTranscript" placeholder="Your speech will appear here as you speak..." style="min-height:120px;"></textarea>
+    </div>
+
+    <!-- Video recorder -->
+    <div id="tab-video" style="display:none;">
+      <div class="video-wrap">
+        <video class="video-preview" id="videoPreview" autoplay muted playsinline></video>
+        <div class="video-controls">
+          <button class="vid-btn start" id="vidStartBtn" onclick="startVideo()">▶ Start Camera</button>
+          <button class="vid-btn stop" id="vidStopBtn" onclick="stopVideo()" disabled>⏹ Stop</button>
+        </div>
+        <div style="margin-top:1rem;color:var(--muted);font-size:.82rem;text-align:center;">
+          Camera feed for emotion & engagement analysis (audio transcription runs simultaneously)
+        </div>
+      </div>
+      <textarea class="transcript-area" id="videoTranscript" placeholder="Your speech will appear here as you speak..." style="min-height:120px;"></textarea>
+    </div>
+
+    <!-- Meta row: Team members + Mood -->
+    <div class="meta-row">
+      <div class="meta-box">
+        <h4>👥 Team Members</h4>
+        <div class="member-input">
+          <input type="text" id="memberInput" placeholder="Add name..." onkeydown="if(event.key==='Enter')addMember()"/>
+          <button class="add-btn" onclick="addMember()">Add</button>
+        </div>
+        <div class="members-list" id="membersList"></div>
+      </div>
+      <div class="meta-box">
+        <h4>😊 Mood Check-in</h4>
+        <div class="mood-grid">
+          <div onclick="selectMood('😤','Frustrated')" class="mood-btn" id="mood-frustrated"><div>😤</div><div class="mood-label">Frustrated</div></div>
+          <div onclick="selectMood('😐','Neutral')" class="mood-btn" id="mood-neutral"><div>😐</div><div class="mood-label">Neutral</div></div>
+          <div onclick="selectMood('🤔','Unsure')" class="mood-btn" id="mood-unsure"><div>🤔</div><div class="mood-label">Unsure</div></div>
+          <div onclick="selectMood('😊','Confident')" class="mood-btn" id="mood-confident"><div>😊</div><div class="mood-label">Confident</div></div>
+          <div onclick="selectMood('🔥','Energised')" class="mood-btn" id="mood-energised"><div>🔥</div><div class="mood-label">Energised</div></div>
+        </div>
+      </div>
+    </div>
+
+    <input type="text" id="meetingTitle" placeholder="Meeting title (optional)" style="width:100%;background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1.2rem;color:var(--white);font-size:.95rem;outline:none;margin-bottom:1rem;"/>
+
+    <button class="analyse-btn" id="analyseBtn" onclick="runAnalysis()">🔍 Analyse Meeting</button>
+
+    <!-- RESULTS SECTION -->
+    <div class="results" id="results">
+
+      <!-- Echo Score Ring -->
+      <div class="echo-score-card">
+        <h3>Echo Chamber Score</h3>
+        <div class="score-ring">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle cx="80" cy="80" r="65" fill="none" stroke="rgba(61,90,254,0.1)" stroke-width="12"/>
+            <circle cx="80" cy="80" r="65" fill="none" stroke="url(#scoreGrad)" stroke-width="12" stroke-linecap="round" id="scoreArc" stroke-dasharray="408" stroke-dashoffset="408"/>
+            <defs>
+              <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00e5a0"/>
+                <stop offset="50%" stop-color="#ffaa00"/>
+                <stop offset="100%" stop-color="#ff4d6d"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="score-ring-num">
+            <span class="score-num" id="scoreNum">--</span>
+            <span id="scoreBadge" class="score-label-badge">--</span>
+          </div>
+        </div>
+        <p id="scoreSummary" style="color:var(--muted);font-size:.9rem;max-width:500px;margin:0 auto;line-height:1.6;"></p>
+      </div>
+
+      <!-- Main results grid -->
+      <div class="results-grid">
+        <!-- Unchallenged Ideas -->
+        <div class="result-card">
+          <h4>⚠️ Unchallenged Ideas</h4>
+          <div id="unchallengedList"></div>
+        </div>
+        <!-- Blind Spots -->
+        <div class="result-card">
+          <h4>🕳️ Blind Spots</h4>
+          <div id="blindSpotsList"></div>
+        </div>
+        <!-- Devil's Advocate -->
+        <div class="result-card">
+          <h4>😈 Devil's Advocate</h4>
+          <div id="devilList"></div>
+        </div>
+        <!-- Question Gaps -->
+        <div class="result-card">
+          <h4>❓ Questions Nobody Asked</h4>
+          <div id="questionList"></div>
+        </div>
+      </div>
+
+      <!-- Dominance Map -->
+      <div class="result-card" style="margin-bottom:1.5rem;">
+        <h4>📊 Dominance Map — Who Talked How Much?</h4>
+        <div id="dominanceMap"></div>
+      </div>
+
+      <!-- Action Items -->
+      <div class="result-card" style="margin-bottom:1.5rem;">
+        <h4>✅ Action Items</h4>
+        <div id="actionItems"></div>
+      </div>
+
+      <!-- What-If & Perspective Tools -->
+      <div class="tools-row">
+        <div class="tool-card">
+          <h4>🧪 What-If Generator</h4>
+          <div class="tool-input">
+            <input type="text" id="whatIfInput" placeholder="Enter an assumption..."/>
+            <button class="tool-btn" onclick="runWhatIf()">Generate</button>
+          </div>
+          <div class="tool-results" id="whatIfResults"></div>
+        </div>
+        <div class="tool-card">
+          <h4>🃏 Perspective Cards</h4>
+          <div class="tool-input">
+            <input type="text" id="perspInput" placeholder="Enter a topic..."/>
+            <button class="tool-btn" onclick="runPerspective()">Generate</button>
+          </div>
+          <div class="tool-results" id="perspResults"></div>
+        </div>
+      </div>
+
+      <!-- Positive Highlights -->
+      <div class="result-card" style="margin-bottom:1.5rem;">
+        <h4>🌟 Positive Highlights</h4>
+        <div id="positiveList"></div>
+      </div>
+
+      <!-- Recommendation -->
+      <div class="result-card" id="recommendationCard" style="border-color:var(--gold);margin-bottom:2rem;">
+        <h4>💡 Key Recommendation</h4>
+        <p id="recommendation" style="font-size:.95rem;line-height:1.6;margin-top:.5rem;"></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DASHBOARD PAGE ══════════ -->
+<div class="page" id="page-dashboard">
+  <div class="dashboard-wrap">
+    <div class="dash-header">
+      <div>
+        <h2>Team Dashboard</h2>
+        <p style="color:var(--muted);margin-top:.3rem;">Your team's thinking health at a glance</p>
+      </div>
+      <button class="btn-primary" onclick="showPage('analyse')">+ New Analysis</button>
+    </div>
+
+    <div class="dash-stats">
+      <div class="dash-stat">
+        <div class="dash-stat-icon">🔴</div>
+        <div class="dash-stat-num" id="avgEchoScore">--</div>
+        <div class="dash-stat-label">Avg Echo Score</div>
+        <div class="dash-stat-trend trend-down" id="echoTrend">↓ improving</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-icon">📋</div>
+        <div class="dash-stat-num" id="totalMeetings">0</div>
+        <div class="dash-stat-label">Meetings Analysed</div>
+        <div class="dash-stat-trend trend-up">↑ this month</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-icon">⚠️</div>
+        <div class="dash-stat-num" id="totalBlindSpots">0</div>
+        <div class="dash-stat-label">Blind Spots Found</div>
+        <div class="dash-stat-trend" style="color:var(--warn);">addressed</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-icon">✅</div>
+        <div class="dash-stat-num" id="totalActions">0</div>
+        <div class="dash-stat-label">Action Items</div>
+        <div class="dash-stat-trend trend-up">↑ generated</div>
+      </div>
+    </div>
+
+    <div class="history-list">
+      <div class="history-header">Recent Meeting Analyses</div>
+      <div id="historyList">
+        <div style="padding:3rem;text-align:center;color:var(--muted);">
+          <div style="font-size:2rem;margin-bottom:1rem;">🔍</div>
+          <div>No analyses yet — go analyse your first meeting!</div>
+          <button class="btn-primary" style="margin:1.5rem auto 0;display:flex;" onclick="showPage('analyse')">Start Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end .app -->
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay" style="display:none;">
+  <svg class="loading-prism" width="80" height="80" viewBox="0 0 80 80" fill="none">
+    <polygon points="40,5 8,68 72,68" fill="none" stroke="#3d5afe" stroke-width="2"/>
+    <line x1="8" y1="68" x2="2" y2="76" stroke="#3d5afe" stroke-width="1.5"/>
+    <line x1="20" y1="68" x2="15" y2="76" stroke="#ffd700" stroke-width="1.5"/>
+    <line x1="40" y1="68" x2="40" y2="77" stroke="#ffd700" stroke-width="2"/>
+    <line x1="60" y1="68" x2="65" y2="76" stroke="#00c9ff" stroke-width="1.5"/>
+    <line x1="72" y1="68" x2="78" y2="76" stroke="#00c9ff" stroke-width="1.5"/>
+  </svg>
+  <div class="loading-text">Analysing your meeting...</div>
+  <div class="loading-sub" id="loadingSubText">Detecting groupthink patterns</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const API = 'http://localhost:8000'; // Change to your deployed backend URL
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let members = [];
+let selectedMood = null;
+let isRecording = false;
+let recognition = null;
+let mediaStream = null;
+let recInterval = null;
+let recSeconds = 0;
+let analysisHistory = JSON.parse(localStorage.getItem('prai_history') || '[]');
+
+// ── NAVIGATION ───────────────────────────────────────────────────────────────
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (page === 'dashboard') refreshDashboard();
+}
+
+// ── INPUT TABS ────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.input-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  ['text','audio','video'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+}
+
+// ── TEAM MEMBERS ──────────────────────────────────────────────────────────────
+function addMember() {
+  const input = document.getElementById('memberInput');
+  const name = input.value.trim();
+  if (!name || members.includes(name)) return;
+  members.push(name);
+  input.value = '';
+  renderMembers();
+}
+
+function removeMember(name) {
+  members = members.filter(m => m !== name);
+  renderMembers();
+}
+
+function renderMembers() {
+  const list = document.getElementById('membersList');
+  list.innerHTML = members.map(m =>
+    `<div class="member-tag">${m}<button onclick="removeMember('${m}')">×</button></div>`
+  ).join('');
+}
+
+// ── MOOD ─────────────────────────────────────────────────────────────────────
+function selectMood(emoji, label) {
+  selectedMood = { emoji, label };
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('mood-' + label.toLowerCase()).classList.add('selected');
+}
+
+// ── AUDIO RECORDING ───────────────────────────────────────────────────────────
+function toggleAudioRec() {
+  if (!isRecording) startAudioRec();
+  else stopAudioRec();
+}
+
+function startAudioRec() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    showToast('Speech recognition not supported in this browser. Try Chrome!', 'error');
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  let finalText = '';
+  recognition.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalText += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    document.getElementById('audioTranscript').value = finalText + interim;
+  };
+  recognition.start();
+  isRecording = true;
+  recSeconds = 0;
+  document.getElementById('audioRecBtn').classList.add('recording');
+  document.getElementById('audioRecBtn').textContent = '⏹';
+  document.getElementById('audioStatus').textContent = 'Recording... speak clearly';
+  recInterval = setInterval(() => {
+    recSeconds++;
+    const m = String(Math.floor(recSeconds/60)).padStart(2,'0');
+    const s = String(recSeconds%60).padStart(2,'0');
+    document.getElementById('audioTimer').textContent = m + ':' + s;
+  }, 1000);
+}
+
+function stopAudioRec() {
+  if (recognition) recognition.stop();
+  isRecording = false;
+  clearInterval(recInterval);
+  document.getElementById('audioRecBtn').classList.remove('recording');
+  document.getElementById('audioRecBtn').textContent = '🎙️';
+  document.getElementById('audioStatus').textContent = 'Recording stopped — transcript ready below';
+  // Copy to main transcript
+  const t = document.getElementById('audioTranscript').value;
+  document.getElementById('transcriptText').value = t;
+}
+
+// ── VIDEO RECORDING ───────────────────────────────────────────────────────────
+async function startVideo() {
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    document.getElementById('videoPreview').srcObject = mediaStream;
+    document.getElementById('vidStartBtn').disabled = true;
+    document.getElementById('vidStopBtn').disabled = false;
+
+    // Also start speech recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SR();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      let finalText = '';
+      recognition.onresult = e => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) finalText += e.results[i][0].transcript + ' ';
+          else interim += e.results[i][0].transcript;
+        }
+        document.getElementById('videoTranscript').value = finalText + interim;
+        document.getElementById('transcriptText').value = finalText + interim;
+      };
+      recognition.start();
+    }
+    showToast('Camera and microphone active!', 'success');
+  } catch(e) {
+    showToast('Camera access denied. Please allow camera & mic permissions.', 'error');
+  }
+}
+
+function stopVideo() {
+  if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+  if (recognition) recognition.stop();
+  document.getElementById('videoPreview').srcObject = null;
+  document.getElementById('vidStartBtn').disabled = false;
+  document.getElementById('vidStopBtn').disabled = true;
+  showToast('Recording stopped!', 'success');
+}
+
+// ── ANALYSIS ──────────────────────────────────────────────────────────────────
+async function runAnalysis() {
+  const transcript = document.getElementById('transcriptText').value.trim()
+    || document.getElementById('audioTranscript')?.value.trim()
+    || document.getElementById('videoTranscript')?.value.trim();
+
+  if (!transcript) { showToast('Please add a transcript first!', 'error'); return; }
+
+  const loadingMsgs = [
+    'Detecting groupthink patterns...',
+    'Mapping dominance landscape...',
+    'Generating devil\'s advocate...',
+    'Finding blind spots...',
+    'Building your insights...'
+  ];
+  let msgIdx = 0;
+  showLoading(loadingMsgs[0]);
+  const msgTimer = setInterval(() => {
+    msgIdx = (msgIdx + 1) % loadingMsgs.length;
+    document.getElementById('loadingSubText').textContent = loadingMsgs[msgIdx];
+  }, 1800);
+
+  try {
+    const res = await fetch(`${API}/analyse`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        transcript,
+        team_members: members,
+        meeting_title: document.getElementById('meetingTitle').value || 'Team Meeting',
+        mood_checkins: selectedMood || {}
+      })
+    });
+    const json = await res.json();
+    clearInterval(msgTimer);
+    hideLoading();
+    if (json.success) {
+      renderResults(json.data);
+      saveToHistory(json.data, document.getElementById('meetingTitle').value || 'Team Meeting');
+      showToast('Analysis complete!', 'success');
+    } else {
+      showToast('Analysis failed. Check your API connection.', 'error');
+    }
+  } catch(e) {
+    clearInterval(msgTimer);
+    hideLoading();
+    // Demo mode with sample data
+    const demoData = generateDemoData(transcript);
+    renderResults(demoData);
+    saveToHistory(demoData, document.getElementById('meetingTitle').value || 'Team Meeting');
+    showToast('Demo mode — connect backend for real AI analysis!', 'success');
+  }
+}
+
+function generateDemoData(transcript) {
+  const wordCount = transcript.split(' ').length;
+  const echoScore = Math.min(95, Math.max(15, Math.floor(Math.random()*60)+20));
+  return {
+    echo_score: echoScore,
+    echo_label: echoScore < 30 ? 'Low' : echoScore < 60 ? 'Moderate' : echoScore < 80 ? 'High' : 'Critical',
+    summary: `This meeting of ${wordCount} words showed ${echoScore > 60 ? 'significant' : 'some'} signs of groupthink. Key decisions were made with ${echoScore > 60 ? 'minimal' : 'some'} pushback, and several important perspectives appear to have been overlooked.`,
+    unchallenged_ideas: [
+      {idea: 'Going with Option A without evaluating alternatives', risk: 'No alternatives were explored — this could be a costly assumption'},
+      {idea: 'Timeline assumption of 2 weeks', risk: 'Nobody questioned whether this is actually achievable'}
+    ],
+    blind_spots: [
+      {topic: 'Budget impact', description: 'Financial implications were not discussed despite significant resource commitment'},
+      {topic: 'Customer feedback', description: 'No mention of what actual customers think about this direction'}
+    ],
+    devils_advocate: [
+      {point: 'What if Option A actually increases costs by 40% in the long run?'},
+      {point: 'Have we considered that this solution solves the wrong problem entirely?'},
+      {point: 'What happens if the key assumption here turns out to be wrong?'}
+    ],
+    dominance_map: members.length > 0
+      ? members.map((m,i) => ({name:m, percentage: Math.round((100/members.length) + (Math.random()*20-10)), role: i===0?'Dominant':i===members.length-1?'Passive':'Active'}))
+      : [{name:'Speaker 1',percentage:65,role:'Dominant'},{name:'Speaker 2',percentage:25,role:'Active'},{name:'Speaker 3',percentage:10,role:'Passive'}],
+    question_gaps: [
+      {question: 'What are the top 3 risks if this decision is wrong?'},
+      {question: 'Who is responsible if this does not meet the deadline?'},
+      {question: 'Have we validated this with actual data?'}
+    ],
+    opinion_shifts: 'No opinion shifts detected — all participants maintained their initial positions throughout the meeting.',
+    action_items: [
+      {task: 'Evaluate 2 alternative options to compare with Option A', owner: members[0]||'Team Lead', deadline: 'Next meeting'},
+      {task: 'Get customer feedback before finalising decision', owner: members[1]||'Product', deadline: 'Within 3 days'},
+      {task: 'Run a financial impact analysis', owner: members[2]||'Finance', deadline: 'End of week'}
+    ],
+    positive_highlights: [
+      {highlight: 'Team was engaged and participated actively'},
+      {highlight: 'Clear meeting structure with defined agenda'}
+    ],
+    recommendation: 'Assign a dedicated Devil\'s Advocate role in your next meeting to ensure every major decision is challenged before it\'s finalised. Consider running a pre-mortem exercise.'
+  };
+}
+
+// ── RENDER RESULTS ────────────────────────────────────────────────────────────
+function renderResults(data) {
+  // Echo score ring
+  const score = data.echo_score || 0;
+  const circumference = 408;
+  const offset = circumference - (circumference * score / 100);
+  const arc = document.getElementById('scoreArc');
+  arc.style.transition = 'stroke-dashoffset 1.5s ease';
+  setTimeout(() => arc.style.strokeDashoffset = offset, 100);
+
+  document.getElementById('scoreNum').textContent = score;
+  const badge = document.getElementById('scoreBadge');
+  badge.textContent = data.echo_label || '--';
+  badge.className = `score-label-badge score-${(data.echo_label||'low').toLowerCase()}`;
+  document.getElementById('scoreSummary').textContent = data.summary || '';
+
+  // Unchallenged ideas
+  document.getElementById('unchallengedList').innerHTML = (data.unchallenged_ideas||[]).map(i =>
+    `<div class="result-item danger"><strong>${i.idea}</strong><span>${i.risk}</span></div>`
+  ).join('') || '<div class="result-item success">No unchallenged ideas detected 🎉</div>';
+
+  // Blind spots
+  document.getElementById('blindSpotsList').innerHTML = (data.blind_spots||[]).map(i =>
+    `<div class="result-item danger"><strong>${i.topic}</strong><span>${i.description}</span></div>`
+  ).join('') || '<div class="result-item success">No major blind spots detected 🎉</div>';
+
+  // Devil's advocate
+  document.getElementById('devilList').innerHTML = (data.devils_advocate||[]).map(i =>
+    `<div class="result-item gold">${i.point}</div>`
+  ).join('');
+
+  // Question gaps
+  document.getElementById('questionList').innerHTML = (data.question_gaps||[]).map(i =>
+    `<div class="result-item">${i.question}</div>`
+  ).join('');
+
+  // Dominance map
+  document.getElementById('dominanceMap').innerHTML = (data.dominance_map||[]).map(i =>
+    `<div class="dom-bar-wrap">
+      <div class="dom-bar-header">
+        <span>${i.name} <span class="dom-role ${i.role}">${i.role}</span></span>
+        <span>${i.percentage}%</span>
+      </div>
+      <div class="dom-bar"><div class="dom-bar-fill" style="width:${i.percentage}%"></div></div>
+    </div>`
+  ).join('');
+
+  // Action items
+  document.getElementById('actionItems').innerHTML = (data.action_items||[]).map((i,idx) =>
+    `<div class="action-item">
+      <div class="action-check" id="ac${idx}" onclick="toggleAction(${idx})"></div>
+      <div class="action-text">
+        <div>${i.task}</div>
+        <div class="action-meta">👤 ${i.owner} &nbsp;|&nbsp; 📅 ${i.deadline}</div>
+      </div>
+    </div>`
+  ).join('');
+
+  // Positive highlights
+  document.getElementById('positiveList').innerHTML = (data.positive_highlights||[]).map(i =>
+    `<div class="result-item success">${i.highlight}</div>`
+  ).join('');
+
+  // Recommendation
+  document.getElementById('recommendation').textContent = data.recommendation || '';
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function toggleAction(idx) {
+  const el = document.getElementById('ac'+idx);
+  el.classList.toggle('done');
+  el.textContent = el.classList.contains('done') ? '✓' : '';
+}
+
+// ── WHAT-IF ───────────────────────────────────────────────────────────────────
+async function runWhatIf() {
+  const input = document.getElementById('whatIfInput').value.trim();
+  if (!input) return;
+  const res = document.getElementById('whatIfResults');
+  res.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">Generating...</div>';
+  try {
+    const r = await fetch(`${API}/what-if`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:input})});
+    const j = await r.json();
+    res.innerHTML = (j.data.what_ifs||[]).map(i =>
+      `<div class="tool-item"><strong>${i.perspective}:</strong> ${i.question}</div>`
+    ).join('');
+  } catch {
+    res.innerHTML = [
+      {question:`What if ${input} is built on a completely wrong assumption?`, perspective:'Sceptic'},
+      {question:`What if the opposite of "${input}" is actually true?`, perspective:'Devil\'s Advocate'},
+      {question:`What if we do nothing about "${input}" for 6 months?`, perspective:'Strategist'}
+    ].map(i=>`<div class="tool-item"><strong>${i.perspective}:</strong> ${i.question}</div>`).join('');
+  }
+}
+
+// ── PERSPECTIVE CARDS ─────────────────────────────────────────────────────────
+async function runPerspective() {
+  const input = document.getElementById('perspInput').value.trim();
+  if (!input) return;
+  const res = document.getElementById('perspResults');
+  res.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">Generating...</div>';
+  try {
+    const r = await fetch(`${API}/perspective-cards`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:input})});
+    const j = await r.json();
+    res.innerHTML = (j.data.cards||[]).map(i =>
+      `<div class="tool-item" style="border-left-color:${i.color==='gold'?'var(--gold)':i.color==='green'?'var(--success)':i.color==='red'?'var(--danger)':'var(--blue)'}">
+        <strong>${i.role}:</strong> ${i.perspective}<br/>
+        <span style="color:var(--muted);font-size:.78rem;">Key concern: ${i.key_concern}</span>
+      </div>`
+    ).join('');
+  } catch {
+    res.innerHTML = [
+      {role:'Customer',perspective:'Will this actually solve my problem faster?',key_concern:'Usability and time to value',color:'blue'},
+      {role:'Investor',perspective:'What\'s the ROI and how fast?',key_concern:'Revenue impact',color:'gold'},
+      {role:'Competitor',perspective:'How would we counter this move?',key_concern:'Market positioning',color:'red'}
+    ].map(i=>`<div class="tool-item" style="border-left-color:${i.color==='gold'?'var(--gold)':i.color==='red'?'var(--danger)':'var(--blue)'}">
+      <strong>${i.role}:</strong> ${i.perspective}<br/>
+      <span style="color:var(--muted);font-size:.78rem;">Key concern: ${i.key_concern}</span>
+    </div>`).join('');
+  }
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function saveToHistory(data, title) {
+  const entry = {
+    title,
+    score: data.echo_score,
+    label: data.echo_label,
+    blindSpots: (data.blind_spots||[]).length,
+    actions: (data.action_items||[]).length,
+    date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+  };
+  analysisHistory.unshift(entry);
+  localStorage.setItem('prai_history', JSON.stringify(analysisHistory));
+  refreshDashboard();
+}
+
+function refreshDashboard() {
+  document.getElementById('totalMeetings').textContent = analysisHistory.length;
+  const totalBS = analysisHistory.reduce((a,b)=>a+(b.blindSpots||0),0);
+  const totalAC = analysisHistory.reduce((a,b)=>a+(b.actions||0),0);
+  document.getElementById('totalBlindSpots').textContent = totalBS;
+  document.getElementById('totalActions').textContent = totalAC;
+  if (analysisHistory.length) {
+    const avg = Math.round(analysisHistory.reduce((a,b)=>a+b.score,0)/analysisHistory.length);
+    document.getElementById('avgEchoScore').textContent = avg;
+  }
+
+  const list = document.getElementById('historyList');
+  if (!analysisHistory.length) {
+    list.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">
+      <div style="font-size:2rem;margin-bottom:1rem;">🔍</div>
+      <div>No analyses yet — go analyse your first meeting!</div>
+      <button class="btn-primary" style="margin:1.5rem auto 0;display:flex;" onclick="showPage('analyse')">Start Now</button>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = analysisHistory.map(e => {
+    const color = e.score < 30 ? 'var(--success)' : e.score < 60 ? 'var(--warn)' : 'var(--danger)';
+    return `<div class="history-item">
+      <div class="history-score" style="background:${color}22;color:${color}">${e.score}</div>
+      <div class="history-info">
+        <div class="history-title">${e.title}</div>
+        <div class="history-date">${e.date} &nbsp;·&nbsp; ${e.blindSpots} blind spots &nbsp;·&nbsp; ${e.actions} actions</div>
+      </div>
+      <span class="history-badge score-${(e.label||'low').toLowerCase()}" style="background:${color}22;color:${color};border:1px solid ${color}44">${e.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function showLoading(msg) {
+  document.getElementById('loadingSubText').textContent = msg;
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// Init
+refreshDashboard();
+</script>
+</body>
+</html>
